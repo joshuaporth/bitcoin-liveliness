@@ -35,7 +35,7 @@ class SSD:
 		self.sat_seconds = (destroyed_on - last_spent) * value
 
 tx_cache = Cache[UTXO | STXO]('db/cache/')
-data_cache = Cache('db/data/')
+data_cache = Cache[SSD]('db/data/')
 
 try:
 	num_blocks = 0

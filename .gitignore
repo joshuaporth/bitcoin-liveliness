@@ -1,4 +1,10 @@
 db/*
+!db/cache
+db/cache/*
+!db/cache/.gitkeep
+!db/data
+db/data/*
+!db/data/.gitkeep
 
 # GitHub's Python .gitignore
 # Byte-compiled / optimized / DLL files
