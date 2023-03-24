@@ -3,14 +3,17 @@ import plyvel
 
 class DB:
 	class Key:
-		def __init__(self, prefix: str, txid: str, vout: int) -> None:
-			self.bytes = f'{prefix}-{txid}-{vout}'.encode('ascii')
-		
+		def __init__(self) -> None:
+			pass
+
+		def bytes(self) -> bytes:
+			pass
+
 		def __eq__(self, other: object) -> bool:
-			return self.bytes == other.bytes
+			return self.bytes() == other.bytes()
 		
 		def __hash__(self) -> int:
-			return self.bytes.__hash__()
+			return self.bytes().__hash__()
 
 	def __init__(self, db_dir: str) -> None:
 		self._db = plyvel.DB(db_dir, create_if_missing=True)

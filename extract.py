@@ -3,6 +3,7 @@ from os import path
 from datetime import datetime
 from db import DB
 from cache import Cache
+from chachekeys import CacheKeys
 
 from blockchain_parser.blockchain import get_files, get_blocks
 from blockchain_parser.block import Block
@@ -29,13 +30,13 @@ class STXO:
 		self.blocktime = blocktime
 
 # Sat Seconds Destroyed = value(Sats) * lifespan(S)
-class SSD:
+class SatSeconds:
 	def __init__(self, destroyed_on: int, last_spent: int, value: int) -> None:
 		self.destroyed_on = destroyed_on
 		self.sat_seconds = (destroyed_on - last_spent) * value
 
 tx_cache = Cache[UTXO | STXO]('db/cache/')
-data_cache = Cache[SSD]('db/data/')
+data_cache = Cache[SatSeconds]('db/data/')
 
 try:
 	num_blocks = 0
@@ -51,30 +52,30 @@ try:
 				for _, input in enumerate(tx.inputs):
 					tx_hash = input.transaction_hash
 					i = input.transaction_index
-					utxo_key = DB.Key('utxo', tx_hash, i)
+					utxo_key = CacheKeys.UTXO(tx_hash, i)
 					utxo: UTXO = tx_cache.get(utxo_key)
 					if utxo:
-						ssd_key = DB.Key('ssd', tx_hash, i)
-						ssd = SSD(blocktime, utxo.blocktime, utxo.value)
-						data_cache.put(ssd_key, ssd)
+						satseconds_key = CacheKeys.SatSeconds(tx_hash, i)
+						satseconds = SatSeconds(blocktime, utxo.blocktime, utxo.value)
+						data_cache.put(satseconds_key, satseconds)
 						tx_cache.delete(utxo_key)
 					else:
-						stxo_key = DB.Key('stxo', tx_hash, i)
+						stxo_key = CacheKeys.STXO(tx_hash, i)
 						stxo = STXO(blocktime)
 						tx_cache.put(stxo_key, stxo)
 
 				# Check if we've seen STXOs for the outputs in this transaction
 				# If so, not the SSD and delete the STXO, otherwise cache the UTXO
 				for i, output in enumerate(tx.outputs):
-					stxo_key = DB.Key('stxo', tx.hash, i)
+					stxo_key = CacheKeys.STXO(tx.hash, i)
 					stxo: STXO = tx_cache.get(stxo_key)
 					if stxo:
-						ssd_key = DB.Key('ssd', tx.hash, i)
-						ssd = SSD(stxo.blocktime, blocktime, output.value)
-						data_cache.put(ssd_key, ssd)
+						satseconds_key = CacheKeys.SatSeconds(tx.hash, i)
+						satseconds = SatSeconds(stxo.blocktime, blocktime, output.value)
+						data_cache.put(satseconds_key, satseconds)
 						tx_cache.delete(stxo_key)
 					else:
-						utxo_key = DB.Key('utxo', tx.hash, i)
+						utxo_key = CacheKeys.UTXO(tx.hash, i)
 						utxo = UTXO(blocktime, output.value)
 						tx_cache.put(utxo_key, utxo)
 		
