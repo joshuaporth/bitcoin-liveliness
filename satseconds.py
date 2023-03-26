@@ -3,7 +3,7 @@ from os import path
 from datetime import datetime
 from db import DB
 from cache import Cache
-from chachekeys import CacheKeys
+from cachekeys import CacheKeys
 
 from blockchain_parser.blockchain import get_files, get_blocks
 from blockchain_parser.block import Block
@@ -81,7 +81,8 @@ try:
 		
 			num_blocks += 1
 			if num_blocks == MAX_BLOCKS:
-				sys.exit("MAX_BLOCKS reached. Exiting now.", 0)
+				sys.stdout.write("MAX_BLOCKS reached. Exiting now.")
+				sys.exit(0)
 		
 		# Check if the cache sizes meet or exceed the limit and flush to disk if needed
 		if tx_cache.size() >= MAX_BYTES_PER_CACHE:

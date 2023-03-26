@@ -19,7 +19,7 @@ class DB:
 		self._db = plyvel.DB(db_dir, create_if_missing=True)
 	
 	def get(self, key: Key) -> any:
-		data = self._db.get(key.bytes)
+		data = self._db.get(key.bytes())
 		if data:
 			return pickle.loads(data)
 		return None
@@ -27,6 +27,6 @@ class DB:
 	def batch(self, puts: list[tuple[Key, any]], deletes: list[Key]) -> None:
 		with self._db.write_batch() as wb:
 			for key, data in puts:
-				wb.put(key.bytes, pickle.dumps(data))
+				wb.put(key.bytes(), pickle.dumps(data))
 			for key in deletes:
-				wb.delete(key.bytes)
+				wb.delete(key.bytes())
