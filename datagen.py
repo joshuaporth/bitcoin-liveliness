@@ -30,7 +30,7 @@ class STXO:
 
 
 # Sat Seconds Destroyed = value(Sats) * lifespan(S)
-class SatSeconds:
+class CDD:
     def __init__(self, destroyed_on: int, last_spent: int, value: int) -> None:
         self.destroyed_on = destroyed_on
         self.sat_seconds = (destroyed_on - last_spent) * value
@@ -45,7 +45,7 @@ class CacheKey(DB.Key):
 
 
 txo_cache = Cache[UTXO | STXO]("db/cache/")
-data = Cache[SatSeconds]("db/data/")
+data = Cache[CDD]("db/data/")
 
 try:
     num_blocks = 0
@@ -64,9 +64,9 @@ try:
                     utxo_key = CacheKey(UTXO, tx_hash, i)
                     utxo: UTXO = txo_cache.get(utxo_key)
                     if utxo:
-                        satseconds_key = CacheKey(SatSeconds, tx_hash, i)
-                        satseconds = SatSeconds(blocktime, utxo.blocktime, utxo.value)
-                        data.put(satseconds_key, satseconds)
+                        cdd_key = CacheKey(CDD, tx_hash, i)
+                        cdd = CDD(blocktime, utxo.blocktime, utxo.value)
+                        data.put(cdd_key, cdd)
                         txo_cache.delete(utxo_key)
                     else:
                         stxo_key = CacheKey(STXO, tx_hash, i)
@@ -79,9 +79,9 @@ try:
                     stxo_key = CacheKey(STXO, tx.hash, i)
                     stxo: STXO = txo_cache.get(stxo_key)
                     if stxo:
-                        satseconds_key = CacheKey(SatSeconds, tx.hash, i)
-                        satseconds = SatSeconds(stxo.blocktime, blocktime, output.value)
-                        data.put(satseconds_key, satseconds)
+                        cdd_key = CacheKey(CDD, tx.hash, i)
+                        cdd = CDD(stxo.blocktime, blocktime, output.value)
+                        data.put(cdd_key, cdd)
                         txo_cache.delete(stxo_key)
                     else:
                         utxo_key = CacheKey(UTXO, tx.hash, i)
@@ -90,7 +90,7 @@ try:
 
             num_blocks += 1
             if num_blocks == MAX_BLOCKS:
-                sys.stdout.write("MAX_BLOCKS reached. Exiting now.")
+                sys.stdout.write("MAX_BLOCKS reached. Exiting now.\n")
                 sys.exit(0)
 
         # Check if the cache sizes meet or exceed the limit and flush to disk if needed
