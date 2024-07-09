@@ -1,5 +1,5 @@
 # bitcoin-liveliness
-Measuring the Liveliness of Bitcoin 🚀
+Measuring the Liveliness of Bitcoin 📈
 
 ## Liveliness
 > Liveliness is a metric which provides insights into shifts in macro HODLing behavior, helping to identify trends in long term holder accumulation or spending.
@@ -18,7 +18,8 @@ Below are a couple articles that shed more light on Liveliness:
 
 
 ## TODO
-- [ ] Convert LevelDB data to csv or sqlite
-- [ ] Create Liveliness chart using [Dash][dash]
+- Convert LevelDB data to csv or sqlite
+- Create Liveliness chart using [Dash][dash]
+
 
 [dash]: https://dash.plotly.com/introduction
